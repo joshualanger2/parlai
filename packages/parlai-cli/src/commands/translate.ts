@@ -10,14 +10,20 @@ interface TranslateOptions {
 
 export async function translate(options: TranslateOptions): Promise<void> {
   try {
-    // Read the source translations file
-    const sourcePath = path.join(process.cwd(), `${options.source}.json`);
+    // Read the source translations file from locales directory
+    const sourcePath = path.join(process.cwd(), 'locales', `${options.source}.json`);
     if (!fs.existsSync(sourcePath)) {
       throw new Error(`Source file ${sourcePath} not found. Run 'parlai extract' first.`);
     }
 
     const sourceStrings = JSON.parse(fs.readFileSync(sourcePath, 'utf-8')) as Record<string, string>;
     const openai = new OpenAI({ apiKey: options.apiKey });
+
+    // Create locales directory if it doesn't exist
+    const localesDir = path.join(process.cwd(), 'locales');
+    if (!fs.existsSync(localesDir)) {
+      fs.mkdirSync(localesDir, { recursive: true });
+    }
 
     // Translate to each target language
     for (const targetLang of options.target) {
@@ -41,10 +47,10 @@ export async function translate(options: TranslateOptions): Promise<void> {
         console.log(`Progress: ${Math.min(i + batchSize, entries.length)}/${entries.length}`);
       }
 
-      // Write translations to file
-      const targetPath = path.join(process.cwd(), `${targetLang}.json`);
+      // Write translations to file in locales directory
+      const targetPath = path.join(process.cwd(), 'locales', `${targetLang}.json`);
       fs.writeFileSync(targetPath, JSON.stringify(translations, null, 2));
-      console.log(`✨ Translations saved to ${targetLang}.json`);
+      console.log(`✨ Translations saved to locales/${targetLang}.json`);
     }
 
   } catch (error) {

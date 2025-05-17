@@ -55,7 +55,7 @@ Scans your React components and extracts hardcoded strings into a translation fi
 - Finds all text content in JSX
 - Extracts string literals from attributes
 - Generates appropriate translation keys
-- Creates/updates `en.json` with extracted strings
+- Creates/updates `locales/en.json` with extracted strings
 
 ```bash
 parlai extract <directory>
@@ -70,6 +70,7 @@ Transforms your React components to use i18n:
 - Replaces hardcoded strings with translation keys
 - Handles both text content and attributes (className, placeholder, etc.)
 - Makes components async if needed for translation loading
+- Requires `locales/en.json` to exist (created by `extract`)
 
 ```bash
 parlai transform <directory>
@@ -80,6 +81,8 @@ parlai transform ./src
 ### `translate`
 
 (Optional) Translates extracted strings to other languages using AI:
+- Reads source strings from `locales/en.json`
+- Generates translations in the `locales` directory
 
 ```bash
 parlai translate --api-key=your-openai-api-key
@@ -105,12 +108,13 @@ Here's a complete example of internationalizing a React application:
    ```bash
    parlai setup
    ```
+   This creates the necessary configuration files and the `locales` directory.
 
 4. Extract strings from your components:
    ```bash
    parlai extract ./src
    ```
-   This creates an `en.json` file with all your strings.
+   This creates `locales/en.json` with all your strings.
 
 5. Transform your components to use i18n:
    ```bash
@@ -122,12 +126,13 @@ Here's a complete example of internationalizing a React application:
    ```bash
    parlai translate --api-key=your-openai-api-key --target fr es
    ```
+   This creates `locales/fr.json` and `locales/es.json` with translations.
 
 ## Notes
 
-- The `setup` command detects your package manager automatically but you can override it with `--package-manager`
+- The `setup` command creates a `locales` directory for your translation files
 - Run `extract` before `transform` to ensure all strings are captured
-- The `transform` command requires `en.json` to exist (created by `extract`)
+- The `transform` command requires `locales/en.json` to exist (created by `extract`)
 - Components using translations will be made async to support dynamic loading
 - Backup your code before running the transform command
 

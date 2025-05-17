@@ -24,27 +24,20 @@ export async function setup(options: SetupOptions = {}): Promise<void> {
     console.log('📝 Creating i18n configuration files...');
     
     // Create i18n.ts
-    const i18nConfig = `import { createInstance } from 'i18next';
-import resourcesToBackend from 'i18next-resources-to-backend';
+    const i18nConfig = `'use client';
+
+import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
+import resourcesToBackend from 'i18next-resources-to-backend';
 import { getOptions } from './i18n.config';
 
-const initI18next = async (lng: string, ns: string) => {
-  const i18nInstance = createInstance();
-  await i18nInstance
-    .use(initReactI18next)
-    .use(resourcesToBackend((language: string, namespace: string) => import(\`../../../\${language}.json\`)))
-    .init(getOptions(lng, ns));
-  return i18nInstance;
-};
+// Initialize i18next for the application
+i18n
+  .use(initReactI18next)
+  .use(resourcesToBackend((language: string) => import(\`./locales/\${language}.json\`)))
+  .init(getOptions());
 
-export async function useTranslation(lng: string, ns: string, options: { keyPrefix?: string } = {}) {
-  const i18nextInstance = await initI18next(lng, ns);
-  return {
-    t: i18nextInstance.getFixedT(lng, ns, options.keyPrefix),
-    i18n: i18nextInstance
-  };
-}`;
+export default i18n;`;
 
     // Create i18n.config.ts
     const i18nConfigOptions = `export const defaultNS = 'translation';
@@ -61,17 +54,22 @@ export function getOptions(lng = fallbackLng, ns = defaultNS) {
   };
 }`;
 
-    // Write files
+    // Create directories
     const srcDir = path.join(process.cwd(), 'src');
+    const localesDir = path.join(process.cwd(), 'locales');
     if (!fs.existsSync(srcDir)) {
       fs.mkdirSync(srcDir, { recursive: true });
     }
+    if (!fs.existsSync(localesDir)) {
+      fs.mkdirSync(localesDir, { recursive: true });
+    }
 
+    // Write files
     fs.writeFileSync(path.join(srcDir, 'i18n.ts'), i18nConfig);
     fs.writeFileSync(path.join(srcDir, 'i18n.config.ts'), i18nConfigOptions);
 
     console.log('✨ Setup complete! Now you can run:');
-    console.log('1. parlai extract ./src - to extract strings');
+    console.log('1. parlai extract ./src - to extract strings to locales/en.json');
     console.log('2. parlai transform ./src - to replace hardcoded strings');
 
   } catch (error) {
