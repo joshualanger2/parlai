@@ -1,55 +1,135 @@
-# Parlay CLI
+# Parlai CLI
 
-A powerful CLI tool for extracting and managing i18n translations in React applications.
+A powerful CLI tool for automating i18n setup and management in React applications.
 
 ## Features
 
+- 🚀 One-command i18n setup with automatic dependency installation
 - 🔍 Automatically extract hardcoded strings from React components
-- 🌐 Generate i18n-compatible translation keys
-- 🤖 AI-powered translation suggestions using OpenAI
-- 📦 Export translations to JSON format
+- 🔄 Transform React components to use i18n hooks and keys
+- 🌐 AI-powered translation suggestions
+- 📦 Support for both npm and yarn
 
 ## Installation
 
 ```bash
-npm install @parlai/cli
+npm install -g @parlai/cli
 # or
-yarn add @parlai/cli
+yarn global add @parlai/cli
 ```
 
-## Usage
+## Quick Start
 
-### Extract Strings
-
-Extract hardcoded strings from your React components:
+Transform your React app to support i18n in three simple steps:
 
 ```bash
-parlay extract ./src
+# 1. Set up i18n in your project
+parlai setup
+
+# 2. Extract strings from your components
+parlai extract ./src
+
+# 3. Transform components to use i18n
+parlai transform ./src
 ```
 
-This will:
-1. Scan all `.tsx` and `.jsx` files in the specified directory
-2. Extract text content and string literals
-3. Generate appropriate i18n keys
-4. Create an `en.json` file with the extracted strings
+## Commands
 
-### Translate Strings
+### `setup`
 
-Translate the extracted strings to other languages using AI:
+Sets up i18n in your React application by:
+- Installing required dependencies (i18next, react-i18next)
+- Creating i18n configuration files
+- Setting up the translation infrastructure
 
 ```bash
-parlay translate --api-key=your-openai-api-key
+parlai setup
+# or specify package manager
+parlai setup --package-manager yarn
+parlai setup --package-manager npm
 ```
 
-Options:
-- `--api-key`: Your OpenAI API key (required)
-- `--source`: Source language file (default: 'en')
-- `--target`: Target languages to translate to (default: ['fr', 'es'])
+### `extract`
 
-Example:
+Scans your React components and extracts hardcoded strings into a translation file:
+- Finds all text content in JSX
+- Extracts string literals from attributes
+- Generates appropriate translation keys
+- Creates/updates `en.json` with extracted strings
+
 ```bash
-parlay translate --api-key=sk-xxx --target fr es de
+parlai extract <directory>
+# Example:
+parlai extract ./src
 ```
+
+### `transform`
+
+Transforms your React components to use i18n:
+- Adds necessary imports and hooks
+- Replaces hardcoded strings with translation keys
+- Handles both text content and attributes (className, placeholder, etc.)
+- Makes components async if needed for translation loading
+
+```bash
+parlai transform <directory>
+# Example:
+parlai transform ./src
+```
+
+### `translate`
+
+(Optional) Translates extracted strings to other languages using AI:
+
+```bash
+parlai translate --api-key=your-openai-api-key
+# or specify languages
+parlai translate --api-key=your-key --source en --target fr es de
+```
+
+## Workflow Example
+
+Here's a complete example of internationalizing a React application:
+
+1. Install the CLI tool:
+   ```bash
+   yarn global add @parlai/cli
+   ```
+
+2. Navigate to your React project:
+   ```bash
+   cd your-react-app
+   ```
+
+3. Set up i18n (installs dependencies and creates config):
+   ```bash
+   parlai setup
+   ```
+
+4. Extract strings from your components:
+   ```bash
+   parlai extract ./src
+   ```
+   This creates an `en.json` file with all your strings.
+
+5. Transform your components to use i18n:
+   ```bash
+   parlai transform ./src
+   ```
+   This updates your components to use the translation system.
+
+6. (Optional) Generate translations for other languages:
+   ```bash
+   parlai translate --api-key=your-openai-api-key --target fr es
+   ```
+
+## Notes
+
+- The `setup` command detects your package manager automatically but you can override it with `--package-manager`
+- Run `extract` before `transform` to ensure all strings are captured
+- The `transform` command requires `en.json` to exist (created by `extract`)
+- Components using translations will be made async to support dynamic loading
+- Backup your code before running the transform command
 
 ## Development
 

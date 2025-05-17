@@ -11,13 +11,13 @@ export default function HomePage() {
   return (
     <main className="container">
       <section className="hero">
-        <h1>Transform Your React Apps with Parlay</h1>
+        <h1>Transform Your React Apps with Parlai</h1>
         <p>The easiest way to make your React applications global-ready.</p>
         <button type="button">Get Started Now</button>
       </section>
 
       <section className="features">
-        <h2>Why Choose Parlay?</h2>
+        <h2>Why Choose Parlai?</h2>
         <div className="feature-grid">
           <div className="feature-card">
             <h3>Lightning Fast Setup</h3>
@@ -56,7 +56,7 @@ export default function HomePage() {
         <h2>What Developers Say</h2>
         <div className="testimonial-grid">
           <blockquote>
-            <p>"Parlay made internationalizing our app incredibly simple. We were up and running in no time!"</p>
+            <p>"Parlai made internationalizing our app incredibly simple. We were up and running in no time!"</p>
             <cite>- Sarah Chen, Senior Developer</cite>
           </blockquote>
           <blockquote>

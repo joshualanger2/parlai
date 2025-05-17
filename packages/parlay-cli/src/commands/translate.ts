@@ -13,7 +13,7 @@ export async function translate(options: TranslateOptions): Promise<void> {
     // Read the source translations file
     const sourcePath = path.join(process.cwd(), `${options.source}.json`);
     if (!fs.existsSync(sourcePath)) {
-      throw new Error(`Source file ${sourcePath} not found. Run 'parlay extract' first.`);
+      throw new Error(`Source file ${sourcePath} not found. Run 'parlai extract' first.`);
     }
 
     const sourceStrings = JSON.parse(fs.readFileSync(sourcePath, 'utf-8')) as Record<string, string>;

@@ -1,9 +1,9 @@
 export default function AboutPage() {
   const teamMembers = [
     {
-      name: "John Smith",
+      name: "Young Jun",
       role: "Founder & CEO",
-      bio: "John has been building developer tools for over a decade."
+      bio: "Young has been building developer tools for over a decade."
     },
     {
       name: "Maria Garcia",
@@ -15,7 +15,7 @@ export default function AboutPage() {
   return (
     <main className="about-page">
       <section className="about-hero">
-        <h1>About Parlay</h1>
+        <h1>About Parlai</h1>
         <p>
           We're on a mission to make internationalization accessible to every React developer.
           Our tools are built with love and attention to detail, ensuring your journey to
@@ -26,7 +26,7 @@ export default function AboutPage() {
       <section className="our-story">
         <h2>Our Story</h2>
         <p>
-          Parlay was born from a simple observation: internationalizing React apps was too hard.
+          Parlai was born from a simple observation: internationalizing React apps was too hard.
           We believed there had to be a better way. After months of development and testing,
           we created a solution that makes i18n feel like magic.
         </p>
@@ -69,7 +69,7 @@ export default function AboutPage() {
 
       <section className="contact">
         <h2>Get in Touch</h2>
-        <p>Have questions? We'd love to hear from you. Send us a message at hello@parlayapp.com</p>
+        <p>Have questions? We'd love to hear from you. Send us a message at hello@parlai.com</p>
       </section>
     </main>
   );

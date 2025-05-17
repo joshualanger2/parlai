@@ -8,7 +8,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <title>Welcome to Parlay Demo</title>
+        <title>Welcome to Parlai Demo</title>
       </head>
       <body>
         <header>
@@ -22,8 +22,8 @@ export default function RootLayout({
         </header>
         {children}
         <footer>
-          <p>Made with ❤️ by the Parlay Team</p>
-          <p>Copyright © 2024 Parlay. All rights reserved.</p>
+          <p>Made with ❤️ by the Parlai Team</p>
+          <p>Copyright © 2024 Parlai. All rights reserved.</p>
         </footer>
       </body>
     </html>
