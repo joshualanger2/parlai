@@ -13,11 +13,21 @@ export async function createDemo(appName: string) {
   // Change to app directory
   process.chdir(appName);
 
-  // Create sample components with hardcoded text
-  const componentsDir = path.join('src', 'components');
-  fs.mkdirSync(componentsDir, { recursive: true });
+  // Create src directory structure
+  const srcDir = 'src';
+  const appDir = path.join(srcDir, 'app');
+  const componentsDir = path.join(srcDir, 'components');
+  const localesDir = 'locales';
 
-  // Create Hero component
+  fs.mkdirSync(srcDir, { recursive: true });
+  fs.mkdirSync(appDir, { recursive: true });
+  fs.mkdirSync(componentsDir, { recursive: true });
+  fs.mkdirSync(localesDir, { recursive: true });
+
+  // Create empty locales/en.json
+  fs.writeFileSync(path.join(localesDir, 'en.json'), '{}');
+
+  // Create sample components with hardcoded text
   const heroContent = `
 export function Hero() {
   return (

@@ -1,0 +1,30 @@
+{
+  "features": {
+    "easy_integration": "Integración Fácil",
+    "seamlessly_integrate_our_tools_into_your_existing_workflow_with_just_a_few_simple_steps": "Integre sin problemas nuestras herramientas en su flujo de trabajo existente con solo unos pocos pasos simples.",
+    "powerful_analytics": "Potentes Análisis",
+    "get_detailed_insights_and_metrics_to_make_data_driven_decisions_for_your_business": "Obtén información detallada y métricas para tomar decisiones basadas en datos para tu negocio.",
+    "our_dedicated_support_team_is_always_here_to_help_you_succeed_with_your_projects": "Nuestro dedicado equipo de soporte siempre está aquí para ayudarte a tener éxito con tus proyectos.",
+    "features": "Características",
+    "everything_you_need_to_succeed": "Todo lo que necesitas para tener éxito",
+    "discover_the_tools_and_features_that_will_help_you_take_your_project_to_the_next_level": "Descubre las herramientas y características que te ayudarán a llevar tu proyecto al siguiente nivel."
+  },
+  "hero": {
+    "welcome_to_our_amazing_platform": "Bienvenido a nuestra increíble plataforma",
+    "experience_the_future_of_web_development_with_our_innovative_tools_and_solutions_start_your_journey_today_and_build_something_extraordinary": "Experimenta el futuro del desarrollo web con nuestras herramientas y soluciones innovadoras. Comienza tu viaje hoy y construye algo extraordinario.",
+    "get_started": "Comienza",
+    "learn_more": "Aprende más"
+  },
+  "testimonials": {
+    "this_platform_has_completely_transformed_how_we_handle_our_projects_the_efficiency_gains_are_incredible": "Esta plataforma ha transformado completamente cómo manejamos nuestros proyectos. ¡Las ganancias en eficiencia son increíbles!",
+    "sarah_johnson": "Sarah Johnson",
+    "cto_at_techcorp": "CTO en TechCorp",
+    "the_best_investment_we_ve_made_for_our_development_team_the_support_is_outstanding": "La mejor inversión que hemos hecho para nuestro equipo de desarrollo. El soporte es excepcional.",
+    "michael_chen": "Michael Chen",
+    "lead_developer_at_startupx": "Desarrollador Principal en StartupX",
+    "emily_rodriguez": "Emily Rodriguez",
+    "product_manager_at_innovateco": "Gerente de Producto en InnovateCo",
+    "testimonials": "Testimonios",
+    "trusted_by_developers_worldwide": "Confiado por desarrolladores en todo el mundo"
+  }
+}

@@ -69,12 +69,30 @@ This command combines string extraction and component transformation into a sing
 
 program
   .command('translate')
-  .description(`Translate extracted strings to other languages using AI.
-Optional step after extraction to generate translations for other languages.
-Requires locales/en.json to exist (created by extract command).`)
-  .requiredOption('--api-key <key>', 'API key for translation service')
-  .option('--source <lang>', 'Source language', 'en')
-  .option('--target <langs...>', 'Target languages to translate to', ['fr', 'es'])
+  .description(`Translate strings to another language.
+  - Takes strings from locales/en.json
+  - Uses OpenAI to translate to the target language
+  - Creates a new JSON file for the target language
+  - Preserves nested structure and formatting
+  
+Example:
+  $ parlai translate es                           # Use OPENAI_API_KEY environment variable
+  $ parlai translate fr --api-key YOUR_API_KEY    # Provide API key directly
+  
+Supported languages:
+  es: Spanish             fr: French
+  de: German              it: Italian
+  pt: Portuguese          nl: Dutch
+  pl: Polish              ru: Russian
+  ja: Japanese            ko: Korean
+  zh: Chinese             ar: Arabic
+  hi: Hindi               tr: Turkish
+  vi: Vietnamese          th: Thai
+
+Note: OpenAI API key can be provided via --api-key or OPENAI_API_KEY environment variable.`)
+  .argument('<lang>', 'Target language code (e.g., es, fr, de)')
+  .option('--dry-run', 'Preview translations without saving', false)
+  .option('--api-key <key>', 'OpenAI API key (overrides OPENAI_API_KEY environment variable)')
   .action(translate);
 
 program.parse();

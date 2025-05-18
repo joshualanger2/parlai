@@ -1,116 +1,140 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import OpenAI from 'openai';
+import { createSpinner } from '../utils/spinner';
 
 interface TranslateOptions {
-  apiKey: string;
-  source: string;
-  target: string[];
+  dryRun?: boolean;
+  apiKey?: string;
 }
 
-export async function translate(options: TranslateOptions): Promise<void> {
+// Map of language codes to their full names
+const languageNames: Record<string, string> = {
+  'es': 'Spanish',
+  'fr': 'French',
+  'de': 'German',
+  'it': 'Italian',
+  'pt': 'Portuguese',
+  'nl': 'Dutch',
+  'pl': 'Polish',
+  'ru': 'Russian',
+  'ja': 'Japanese',
+  'ko': 'Korean',
+  'zh': 'Chinese',
+  'ar': 'Arabic',
+  'hi': 'Hindi',
+  'tr': 'Turkish',
+  'vi': 'Vietnamese',
+  'th': 'Thai',
+};
+
+async function translateObject(obj: any, targetLang: string, openai: OpenAI): Promise<any> {
+  const result: any = {};
+  const { spinner, stop } = createSpinner();
+  spinner.start();
+  
   try {
-    // Read the source translations file from locales directory
-    const sourcePath = path.join(process.cwd(), 'locales', `${options.source}.json`);
-    if (!fs.existsSync(sourcePath)) {
-      throw new Error(`Source file ${sourcePath} not found. Run 'parlai extract' first.`);
-    }
-
-    const sourceStrings = JSON.parse(fs.readFileSync(sourcePath, 'utf-8')) as Record<string, string>;
-    const openai = new OpenAI({ apiKey: options.apiKey });
-
-    // Create locales directory if it doesn't exist
-    const localesDir = path.join(process.cwd(), 'locales');
-    if (!fs.existsSync(localesDir)) {
-      fs.mkdirSync(localesDir, { recursive: true });
-    }
-
-    // Translate to each target language
-    for (const targetLang of options.target) {
-      console.log(`\n🌐 Translating to ${targetLang}...`);
-      const translations: Record<string, string> = {};
-
-      // Process strings in batches to avoid rate limits
-      const entries = Object.entries(sourceStrings) as [string, string][];
-      const batchSize = 10;
-
-      for (let i = 0; i < entries.length; i += batchSize) {
-        const batch = entries.slice(i, i + batchSize);
-        const batchTranslations = await translateBatch(
-          batch,
-          targetLang,
-          openai
-        );
-        Object.assign(translations, batchTranslations);
-
-        // Show progress
-        console.log(`Progress: ${Math.min(i + batchSize, entries.length)}/${entries.length}`);
+    for (const [key, value] of Object.entries(obj)) {
+      if (typeof value === 'string') {
+        // Translate the string
+        try {
+          const response = await openai.chat.completions.create({
+            model: "gpt-4",
+            messages: [
+              {
+                role: "system",
+                content: `You are a professional translator. Translate the following text to ${languageNames[targetLang] || targetLang}. Maintain any formatting, variables, or special characters. Only respond with the translation, nothing else.`
+              },
+              {
+                role: "user",
+                content: value
+              }
+            ],
+            temperature: 0.3, // Lower temperature for more consistent translations
+          });
+          
+          const translation = response.choices[0]?.message?.content;
+          if (!translation) {
+            throw new Error('No translation received from OpenAI');
+          }
+          result[key] = translation.trim();
+        } catch (error) {
+          console.error(`Error translating "${value}":`, error);
+          result[key] = value; // Keep original on error
+        }
+      } else if (typeof value === 'object' && value !== null) {
+        // Recursively translate nested objects
+        result[key] = await translateObject(value, targetLang, openai);
+      } else {
+        result[key] = value;
       }
+    }
+    
+    stop();
+    return result;
+  } catch (error) {
+    stop();
+    throw error;
+  }
+}
 
-      // Write translations to file in locales directory
-      const targetPath = path.join(process.cwd(), 'locales', `${targetLang}.json`);
-      fs.writeFileSync(targetPath, JSON.stringify(translations, null, 2));
-      console.log(`✨ Translations saved to locales/${targetLang}.json`);
+export async function translate(lang: string, options: TranslateOptions = {}): Promise<void> {
+  try {
+    // Validate language code
+    if (!lang.match(/^[a-z]{2}$/)) {
+      throw new Error('Invalid language code. Please use a 2-letter language code (e.g., es, fr, de)');
+    }
+
+    // Check if language is supported
+    if (!languageNames[lang]) {
+      console.warn(`Warning: Language code '${lang}' is not in our predefined list, but we'll try to translate anyway.`);
+    }
+
+    // Check for OpenAI API key in options first, then environment
+    const apiKey = options.apiKey || process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      throw new Error('OpenAI API key is required. Provide it with --api-key or set OPENAI_API_KEY environment variable');
+    }
+
+    // Initialize OpenAI client
+    const openai = new OpenAI({
+      apiKey: apiKey
+    });
+
+    // Check if en.json exists
+    const localesDir = path.join(process.cwd(), 'locales');
+    const sourceFile = path.join(localesDir, 'en.json');
+    if (!fs.existsSync(sourceFile)) {
+      throw new Error('locales/en.json not found. Run "parlai extract" first.');
+    }
+
+    // Load source translations
+    const sourceTranslations = JSON.parse(fs.readFileSync(sourceFile, 'utf-8'));
+
+    console.log(`🔄 Translating strings to ${languageNames[lang] || lang}...`);
+    
+    if (options.dryRun) {
+      console.log('\n🔍 Dry run mode - no files will be modified');
+    }
+
+    // Translate the strings
+    const translatedStrings = await translateObject(sourceTranslations, lang, openai);
+
+    // Save translations
+    if (!options.dryRun) {
+      const targetFile = path.join(localesDir, `${lang}.json`);
+      fs.writeFileSync(
+        targetFile,
+        JSON.stringify(translatedStrings, null, 2)
+      );
+      console.log(`\n✨ Translations saved to locales/${lang}.json`);
+    } else {
+      console.log('\nWould create translations:');
+      console.log(JSON.stringify(translatedStrings, null, 2));
     }
 
   } catch (error) {
-    console.error('Error translating strings:', error);
+    console.error('\n❌ Error during translation:', error);
     process.exit(1);
   }
-}
-
-async function translateBatch(
-  entries: [string, string][],
-  targetLang: string,
-  openai: OpenAI
-): Promise<Record<string, string>> {
-  const translations: Record<string, string> = {};
-  
-  // Prepare the prompt
-  const stringsToTranslate = entries
-    .map(([key, value]) => `${key}: ${value}`)
-    .join('\n');
-
-  const prompt = `Translate the following strings to ${targetLang}. Keep the same keys and only translate the values. Return the result in valid JSON format:
-
-${stringsToTranslate}`;
-
-  try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [
-        {
-          role: "system",
-          content: "You are a professional translator. Translate the given strings accurately while preserving any formatting or special characters. Return only the JSON object with translations."
-        },
-        {
-          role: "user",
-          content: prompt
-        }
-      ]
-    });
-
-    const response = completion.choices[0]?.message?.content;
-    if (!response) {
-      throw new Error('No translation received from OpenAI');
-    }
-
-    // Extract JSON from response
-    const jsonMatch = response.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      throw new Error('Could not parse translation response');
-    }
-
-    const translatedBatch = JSON.parse(jsonMatch[0]);
-    Object.assign(translations, translatedBatch);
-
-  } catch (error) {
-    console.error(`Error translating batch: ${error}`);
-    // Return original strings as fallback
-    entries.forEach(([key, value]) => {
-      translations[key] = value;
-    });
-  }
-
-  return translations;
 } 

@@ -20,7 +20,31 @@ interface ExtractOptions {
   cleanup?: boolean; // Whether to remove unused translations
 }
 
-const i18nConfigTemplate = `export const defaultNS = 'translation';
+const i18nConfigTemplate = `'use client';
+
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+import resourcesToBackend from 'i18next-resources-to-backend';
+import { getOptions } from './i18n.config';
+
+// Initialize i18next instance
+i18n
+  .use(initReactI18next)
+  .use(resourcesToBackend((language: string) => import(\`../locales/\${language}.json\`)))
+  .init({
+    ...getOptions(),
+    interpolation: {
+      escapeValue: false, // React already escapes
+    },
+    returnNull: false,
+    returnEmptyString: false,
+    fallbackLng: 'en',
+    load: 'languageOnly'
+  });
+
+export default i18n;`;
+
+const i18nConfigOptionsTemplate = `export const defaultNS = 'translation';
 export const fallbackLng = 'en';
 
 export function getOptions(lng = fallbackLng, ns = defaultNS) {
@@ -30,24 +54,46 @@ export function getOptions(lng = fallbackLng, ns = defaultNS) {
     lng,
     fallbackNS: defaultNS,
     defaultNS,
-    ns
+    ns,
+    interpolation: {
+      escapeValue: false,
+    },
+    returnNull: false,
+    returnEmptyString: false,
+    load: 'languageOnly'
   };
 }`;
 
-const i18nTemplate = `'use client';
+const i18nProviderTemplate = `'use client';
 
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import resourcesToBackend from 'i18next-resources-to-backend';
-import { getOptions } from './i18n.config';
+import { PropsWithChildren, useEffect, useState } from 'react';
+import i18next from '@/i18n';
+import { I18nextProvider } from 'react-i18next';
 
-// Initialize i18next for the application
-i18n
-  .use(initReactI18next)
-  .use(resourcesToBackend((language: string) => import(\`./locales/\${language}.json\`)))
-  .init(getOptions());
+export function I18nProvider({ children }: PropsWithChildren) {
+  const [initialized, setInitialized] = useState(false);
 
-export default i18n;`;
+  useEffect(() => {
+    const init = async () => {
+      if (!i18next.isInitialized) {
+        await i18next.init();
+      }
+      setInitialized(true);
+    };
+
+    init();
+  }, []);
+
+  if (!initialized) {
+    return null; // or a loading spinner
+  }
+
+  return (
+    <I18nextProvider i18n={i18next}>
+      {children}
+    </I18nextProvider>
+  );
+}`;
 
 function generateKey(file: string, value: string): string {
   // Convert the file path to a namespace
@@ -57,8 +103,7 @@ function generateKey(file: string, value: string): string {
   const key = value
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '')
-    .substring(0, 30);
+    .replace(/^_+|_+$/g, '');
   
   return `${namespace}.${key}`;
 }
@@ -272,39 +317,51 @@ function isInTranslatableContext(path: any): boolean {
   return false;
 }
 
-function ensureI18nSetup(srcDir: string, options: ExtractOptions) {
-  // Get the app root directory (one level up from src)
-  const appDir = path.dirname(srcDir);
-  
-  // Check both possible locations for i18n files
-  const srcI18nConfig = path.join(srcDir, 'i18n.config.ts');
-  const srcI18nPath = path.join(srcDir, 'i18n.ts');
-  const appI18nConfig = path.join(appDir, 'i18n.config.ts');
-  const appI18nPath = path.join(appDir, 'i18n.ts');
+function ensureI18nSetup(srcDir: string, translations: Record<string, any>, options: ExtractOptions) {
+  console.log('\n📝 Setting up i18n configuration...');
 
-  // Check if files exist in either location
-  const hasI18nConfig = fs.existsSync(srcI18nConfig) || fs.existsSync(appI18nConfig);
-  const hasI18n = fs.existsSync(srcI18nPath) || fs.existsSync(appI18nPath);
+  // Create directories
+  const componentsDir = path.join(srcDir, 'components');
+  if (!fs.existsSync(componentsDir)) {
+    fs.mkdirSync(componentsDir, { recursive: true });
+  }
 
-  if (!hasI18nConfig || !hasI18n) {
-    console.log('\n📦 Setting up i18n configuration...');
+  if (!options.dryRun) {
+    // Write files
+    fs.writeFileSync(path.join(srcDir, 'i18n.ts'), i18nConfigTemplate);
+    fs.writeFileSync(path.join(srcDir, 'i18n.config.ts'), i18nConfigOptionsTemplate);
+    fs.writeFileSync(path.join(componentsDir, 'I18nProvider.tsx'), i18nProviderTemplate);
 
-    if (!options.dryRun) {
-      if (!hasI18nConfig) {
-        // Create i18n.config.ts in app root
-        fs.writeFileSync(appI18nConfig, i18nConfigTemplate);
-        console.log('✨ Created i18n.config.ts in app root');
+    // Update root layout to include I18nProvider
+    const layoutPath = path.join(srcDir, 'app', 'layout.tsx');
+    if (fs.existsSync(layoutPath)) {
+      let layoutContent = fs.readFileSync(layoutPath, 'utf-8');
+      
+      // Add import for I18nProvider if not already present
+      if (!layoutContent.includes('I18nProvider')) {
+        // Add after other imports
+        const lines = layoutContent.split('\n');
+        const lastImportIndex = lines.reduce((lastIndex, line, index) => {
+          return line.trim().startsWith('import') ? index : lastIndex;
+        }, 0);
+        lines.splice(lastImportIndex + 1, 0, `import { I18nProvider } from '@/components/I18nProvider';`);
+        layoutContent = lines.join('\n');
       }
-
-      if (!hasI18n) {
-        // Create i18n.ts in app root
-        fs.writeFileSync(appI18nPath, i18nTemplate);
-        console.log('✨ Created i18n.ts in app root');
+      
+      // Find the content between return statement and closing brace
+      const returnMatch = layoutContent.match(/(return\s*\(\s*)([\s\S]*?)(\s*\)\s*;?\s*})/);
+      if (returnMatch) {
+        const [fullMatch, returnStart, content, returnEnd] = returnMatch;
+        // Wrap the body content with I18nProvider
+        const bodyMatch = content.match(/(<body[^>]*>)([\s\S]*?)(<\/body>)/);
+        if (bodyMatch) {
+          const [fullBodyMatch, bodyOpen, bodyContent, bodyClose] = bodyMatch;
+          const newBodyContent = `${bodyOpen}\n          <I18nProvider>${bodyContent}</I18nProvider>${bodyClose}`;
+          const newContent = content.replace(fullBodyMatch, newBodyContent);
+          layoutContent = layoutContent.replace(fullMatch, `${returnStart}${newContent}${returnEnd}`);
+        }
+        fs.writeFileSync(layoutPath, layoutContent);
       }
-    } else {
-      console.log('Would create:');
-      if (!hasI18nConfig) console.log('- i18n.config.ts in app root');
-      if (!hasI18n) console.log('- i18n.ts in app root');
     }
   }
 }
@@ -321,6 +378,20 @@ function setNestedValue(obj: any, path: string[], value: string) {
   current[path[path.length - 1]] = value;
 }
 
+// Function to generate a properly formatted component
+function generateFormattedComponent(componentName: string, content: string): string {
+  return `'use client';
+
+import { useTranslation } from 'react-i18next';
+
+export function ${componentName}() {
+  const { t } = useTranslation();
+
+  ${content}
+}
+`;
+}
+
 export async function extract(dir: string, options: ExtractOptions = {}): Promise<void> {
   try {
     console.log('🔍 Analyzing components...');
@@ -335,7 +406,7 @@ export async function extract(dir: string, options: ExtractOptions = {}): Promis
       fs.cpSync(dir, path.join(backupDir, path.basename(dir)), { recursive: true });
       
       // Copy locales if they exist
-      const localesDir = path.join(process.cwd(), 'locales');
+      const localesDir = path.join(dir, 'locales');
       if (fs.existsSync(localesDir)) {
         fs.cpSync(localesDir, path.join(backupDir, 'locales'), { recursive: true });
       }
@@ -358,7 +429,7 @@ export async function extract(dir: string, options: ExtractOptions = {}): Promis
     
     // Ensure i18n setup exists
     const srcDir = path.resolve(dir);
-    ensureI18nSetup(srcDir, options);
+    ensureI18nSetup(srcDir, {}, options);
 
     const extractedStrings: ExtractedString[] = [];
     const transformedStrings = new Set<string>();
@@ -430,15 +501,23 @@ export async function extract(dir: string, options: ExtractOptions = {}): Promis
       : extractedStrings;
     
     // Generate translations file
-    const translations = {};
+    const translations: Record<string, any> = {};
+    
     finalStrings.forEach(({ key, value }) => {
-      // Split the key into parts (e.g., "features.title" -> ["features", "title"])
-      const keyParts = key.split('.');
-      setNestedValue(translations, keyParts, value);
+      // Split the key into namespace and actual key
+      const [namespace, actualKey] = key.split('.');
+      
+      // Initialize namespace if it doesn't exist
+      if (!translations[namespace]) {
+        translations[namespace] = {};
+      }
+      
+      // Add the translation with the full key as the key
+      translations[namespace][actualKey] = value;
     });
     
     // Create locales directory if it doesn't exist
-    const localesDir = path.join(process.cwd(), 'locales');
+    const localesDir = path.join(dir, 'locales');
     if (!fs.existsSync(localesDir)) {
       fs.mkdirSync(localesDir, { recursive: true });
     }
@@ -449,6 +528,9 @@ export async function extract(dir: string, options: ExtractOptions = {}): Promis
         JSON.stringify(translations, null, 2)
       );
     }
+
+    // Set up i18n configuration
+    ensureI18nSetup(srcDir, translations, options);
 
     const unusedCount = extractedStrings.length - finalStrings.length;
     console.log(`\n📊 String Analysis:`);

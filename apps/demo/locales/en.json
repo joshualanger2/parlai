@@ -1,0 +1,32 @@
+{
+  "features": {
+    "easy_integration": "Easy Integration",
+    "seamlessly_integrate_our_tools_into_your_existing_workflow_with_just_a_few_simple_steps": "Seamlessly integrate our tools into your existing workflow with just a few simple steps.",
+    "powerful_analytics": "Powerful Analytics",
+    "get_detailed_insights_and_metrics_to_make_data_driven_decisions_for_your_business": "Get detailed insights and metrics to make data-driven decisions for your business.",
+    "our_dedicated_support_team_is_always_here_to_help_you_succeed_with_your_projects": "Our dedicated support team is always here to help you succeed with your projects.",
+    "features": "Features",
+    "everything_you_need_to_succeed": "Everything you need to succeed",
+    "discover_the_tools_and_features_that_will_help_you_take_your_project_to_the_next_level": "Discover the tools and features that will help you take your project to the next level."
+  },
+  "hero": {
+    "welcome_to_our_amazing_platform": "Welcome to our amazing platform",
+    "experience_the_future_of_web_development_with_our_innovative_tools_and_solutions_start_your_journey_today_and_build_something_extraordinary": "Experience the future of web development with our innovative tools and solutions.\n            Start your journey today and build something extraordinary.",
+    "get_started": "Get started",
+    "learn_more": "Learn more",
+    "": "→"
+  },
+  "testimonials": {
+    "this_platform_has_completely_transformed_how_we_handle_our_projects_the_efficiency_gains_are_incredible": "This platform has completely transformed how we handle our projects. The efficiency gains are incredible!",
+    "sarah_johnson": "Sarah Johnson",
+    "cto_at_techcorp": "CTO at TechCorp",
+    "the_best_investment_we_ve_made_for_our_development_team_the_support_is_outstanding": "The best investment we've made for our development team. The support is outstanding.",
+    "michael_chen": "Michael Chen",
+    "lead_developer_at_startupx": "Lead Developer at StartupX",
+    "emily_rodriguez": "Emily Rodriguez",
+    "product_manager_at_innovateco": "Product Manager at InnovateCo",
+    "testimonials": "Testimonials",
+    "trusted_by_developers_worldwide": "Trusted by developers worldwide",
+    "": "\""
+  }
+}
