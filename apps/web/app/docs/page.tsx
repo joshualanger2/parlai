@@ -84,7 +84,7 @@ export default function DocsPage() {
                 className="hidden md:flex flex-col w-64 border-r bg-card p-6 gap-2"
                 style={{ marginTop: 64 }}
             >
-                <nav className="flex flex-col gap-2">
+                <nav className="flex flex-col gap-2 px-0">
                     {sections.map(section => (
                         <Button
                             key={section.id}

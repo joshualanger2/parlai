@@ -55,7 +55,7 @@ export default function Hero() {
       <h1>Translate your React app in minutes.</h1>
       <p>Parlai is an open-source widget that helps you internationalize your app with zero config and AI-powered translations—right inside your dev environment.</p>
       <Button>Explore docs</Button>
-      <div>npm install parlai <Button>Copy</Button></div>
+      <div>npm install parlai</div>
     </section>
   );
 }`;
@@ -75,13 +75,14 @@ export default function Hero() {
   );
 }`;
 
-// Helper to add line numbers to code
-function withLineNumbers(code: string) {
+// Helper to add line numbers to code (with optional extra lines)
+function withLineNumbers(code: string, extraLines = 0) {
     const lines = code.split('\n');
+    const totalLines = lines.length + extraLines;
     return (
         <code className="flex text-left">
             <span className="select-none text-muted-foreground pr-4 text-right">
-                {lines.map((_, i) => (
+                {Array.from({ length: totalLines }).map((_, i) => (
                     <span key={i} className="block leading-snug">
                         {i + 1}
                     </span>
@@ -91,6 +92,12 @@ function withLineNumbers(code: string) {
                 {lines.map((line, i) => (
                     <span key={i} className="block leading-snug">
                         {line}
+                    </span>
+                ))}
+                {/* Add empty lines for realism if extraLines > 0 */}
+                {Array.from({ length: extraLines }).map((_, i) => (
+                    <span key={lines.length + i} className="block leading-snug">
+                        {' '}
                     </span>
                 ))}
             </span>
@@ -123,12 +130,13 @@ function highlightReactCodeSimple(code: string, i18nMode: boolean) {
 }
 
 // Helper to render highlighted code with line numbers, HTML, and indentation
-function withLineNumbersHTMLIndented(code: string) {
+function withLineNumbersHTMLIndented(code: string, extraLines = 0) {
     const lines = code.split('\n');
+    const totalLines = lines.length + extraLines;
     return (
         <code className="flex text-left">
             <span className="select-none text-muted-foreground pr-4 text-right">
-                {lines.map((_, i) => (
+                {Array.from({ length: totalLines }).map((_, i) => (
                     <span key={i} className="block leading-snug">
                         {i + 1}
                     </span>
@@ -148,6 +156,12 @@ function withLineNumbersHTMLIndented(code: string) {
                         />
                     );
                 })}
+                {/* Add empty lines for realism if extraLines > 0 */}
+                {Array.from({ length: extraLines }).map((_, i) => (
+                    <span key={lines.length + i} className="block leading-snug">
+                        {' '}
+                    </span>
+                ))}
             </span>
         </code>
     );
@@ -243,10 +257,11 @@ export default function Home() {
                                     className="rounded-full px-3 py-1 mb-2 self-center md:self-start text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1 border-none shadow-none"
                                     onClick={() => {
                                         setHeroLang('en');
+                                        setI18nMode(false);
                                     }}
                                 >
                                     <Undo2 className="size-4 mr-1" />
-                                    Back to English
+                                    Revert to original
                                 </Button>
                             )}
                             <h1 className="text-3xl md:text-5xl font-bold tracking-tight leading-tight">
@@ -362,16 +377,36 @@ export default function Home() {
                                                           ? SIMPLE_I18N_REACT
                                                           : SIMPLE_DUMMY_REACT,
                                                       i18nMode
-                                                  )
+                                                  ),
+                                                  3 // add a few extra lines for realism
                                               )
-                                            : withLineNumbers(
-                                                  JSON.stringify(
-                                                      localeFiles[
-                                                          activeTab as keyof typeof localeFiles
-                                                      ],
-                                                      null,
-                                                      2
-                                                  )
+                                            : withLineNumbersHTMLIndented(
+                                                  // Indent everything inside the braces
+                                                  (() => {
+                                                      const json =
+                                                          JSON.stringify(
+                                                              localeFiles[
+                                                                  activeTab as keyof typeof localeFiles
+                                                              ],
+                                                              null,
+                                                              2
+                                                          );
+                                                      // Add extra indent to everything except first/last line
+                                                      const lines =
+                                                          json.split('\n');
+                                                      return [
+                                                          lines[0],
+                                                          ...lines
+                                                              .slice(1, -1)
+                                                              .map(
+                                                                  l => '  ' + l
+                                                              ),
+                                                          lines[
+                                                              lines.length - 1
+                                                          ]
+                                                      ].join('\n');
+                                                  })(),
+                                                  5 // add more line numbers for realism
                                               )}
                                     </div>
                                 </div>
