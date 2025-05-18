@@ -20,7 +20,7 @@ export default async function Home() {
             SUPPORTED_LANGS.includes(l?.split('-')[0] || '')
         );
         if (found) {
-            const candidate = found.split('-')[0];
+            const candidate = found.split('-')[0] || 'en';
             lang = SUPPORTED_LANGS.includes(candidate) ? candidate : 'en';
         }
     }

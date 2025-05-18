@@ -14,9 +14,16 @@ import { useRouter, usePathname } from 'next/navigation';
 const GITHUB_URL = 'https://github.com/joshualanger2/parlai';
 
 const languages = [
-    { code: 'en', label: 'English' },
-    { code: 'it', label: 'Italiano' },
-    { code: 'ja', label: '日本語' }
+    { code: 'en', label: 'English', flag: '🇺🇸' },
+    { code: 'it', label: 'Italiano', flag: '🇮🇹' },
+    { code: 'ja', label: '日本語', flag: '🇯🇵' },
+    { code: 'pt', label: 'Português', flag: '🇧🇷' },
+    { code: 'ar', label: 'العربية', flag: '🇸🇦' },
+    { code: 'th', label: 'ไทย', flag: '🇹🇭' },
+    { code: 'hi', label: 'हिन्दी', flag: '🇮🇳' },
+    { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
+    { code: 'fr', label: 'Français', flag: '🇫🇷' },
+    { code: 'val', label: 'High Valyrian', flag: '🐉' }
 ];
 
 export function Header() {
@@ -99,6 +106,7 @@ export function Header() {
                                         setLang(l.code);
                                     }}
                                 >
+                                    <span className="mr-2">{l.flag}</span>{' '}
                                     {l.label}
                                     {currentLang === l.code && (
                                         <span className="ml-2 text-xs">✓</span>
@@ -177,6 +185,9 @@ export function Header() {
                                                 setLang(l.code);
                                             }}
                                         >
+                                            <span className="mr-2">
+                                                {l.flag}
+                                            </span>{' '}
                                             {l.label}
                                             {currentLang === l.code && (
                                                 <span className="ml-2 text-xs">

@@ -1,0 +1,7 @@
+{
+    "header": "Übersetze deine React-App in Minuten.",
+    "subheader": "Parlai ist ein Open-Source-Widget, das dir hilft, deine App ohne Konfiguration und mit KI-gestützten Übersetzungen direkt in deiner Entwicklungsumgebung zu internationalisieren.",
+    "exploreDocs": "Dokumentation ansehen",
+    "npmInstall": "npm install parlai",
+    "copied": "Kopiert!"
+}
